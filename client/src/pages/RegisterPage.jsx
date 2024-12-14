@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import "../styles/Register.scss";
+import toast from "react-hot-toast";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -12,45 +13,55 @@ const RegisterPage = () => {
     profileImage: null,
   });
 
+  const [passwordMatch, setPasswordMatch] = useState(true);
+
+  useEffect(() => {
+    setPasswordMatch(
+      formData.password === formData.confirmPassword || formData.confirmPassword === ""
+    );
+  }, [formData.password, formData.confirmPassword]);
+
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
       [name]: name === "profileImage" ? files[0] : value,
     });
   };
 
-  const [passwordMatch, setPasswordMatch] = useState(true)
-
-  useEffect(() => {
-    setPasswordMatch(formData.password === formData.confirmPassword || formData.confirmPassword === "")
-  })
-
-  const navigate = useNavigate()
-
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+
+    if (!passwordMatch) {
+      toast.error("Passwords do not match!");
+      return;
+    }
 
     try {
-      const register_form = new FormData()
-
-      for (var key in formData) {
-        register_form.append(key, formData[key])
+      const register_form = new FormData();
+      for (let key in formData) {
+        register_form.append(key, formData[key]);
       }
 
       const response = await fetch("http://localhost:3001/auth/register", {
         method: "POST",
-        body: register_form
-      })
+        body: register_form,
+      });
 
       if (response.ok) {
-        navigate("/login")
+        toast.success("Registration successful!");
+        navigate("/login");
+      } else {
+        const error = await response.json();
+        toast.error(error.message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      console.log("Registration failed", err.message)
+      toast.error("Registration failed. Please check your inputs and try again.");
+      console.log("Registration failed", err.message);
     }
-  }
+  };
 
   return (
     <div className="register">
@@ -96,7 +107,7 @@ const RegisterPage = () => {
           />
 
           {!passwordMatch && (
-            <p style={{ color: "red" }}>Passwords are not matched!</p>
+            <p style={{ color: "red" }}>Passwords do not match!</p>
           )}
 
           <input

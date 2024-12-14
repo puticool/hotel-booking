@@ -134,7 +134,7 @@ const CreateListing = () => {
       });
 
       if (response.ok) {
-        navigate("/");
+        navigate("/home");
       }
     } catch (err) {
       console.log("Publish Listing failed", err.message);
