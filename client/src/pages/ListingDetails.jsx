@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import "../styles/ListingDetails.scss";
 import { useNavigate, useParams } from "react-router-dom";
 import { facilities } from "../data";
@@ -9,7 +10,7 @@ import { DateRange } from "react-date-range";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
-import Footer from "../components/Footer"
+import Footer from "../components/Footer";
 
 const ListingDetails = () => {
   const [loading, setLoading] = useState(true);
@@ -17,29 +18,23 @@ const ListingDetails = () => {
   const { listingId } = useParams();
   const [listing, setListing] = useState(null);
 
-  const getListingDetails = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:3001/properties/${listingId}`,
-        {
-          method: "GET",
-        }
-      );
-
-      const data = await response.json();
-      setListing(data);
-      setLoading(false);
-    } catch (err) {
-      console.log("Fetch Listing Details Failed", err.message);
-    }
-  };
-
   useEffect(() => {
+    const getListingDetails = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/properties/${listingId}`
+        );
+        setListing(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.log("Fetch Listing Details Failed", err.message);
+      }
+    };
+
     getListingDetails();
-  }, []);
+  }, [listingId]);
 
-  console.log(listing)
-
+  console.log(listing);
 
   /* BOOKING CALENDAR */
   const [dateRange, setDateRange] = useState([
@@ -60,9 +55,9 @@ const ListingDetails = () => {
   const dayCount = Math.round(end - start) / (1000 * 60 * 60 * 24); // Calculate the difference in day unit
 
   /* SUBMIT BOOKING */
-  const customerId = useSelector((state) => state?.user?._id)
+  const customerId = useSelector((state) => state?.user?._id);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     try {
@@ -73,30 +68,32 @@ const ListingDetails = () => {
         startDate: dateRange[0].startDate.toDateString(),
         endDate: dateRange[0].endDate.toDateString(),
         totalPrice: listing.price * dayCount,
-      }
+      };
 
-      const response = await fetch("http://localhost:3001/bookings/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingForm)
-      })
+      const response = await axios.post(
+        "http://localhost:3001/bookings/create",
+        bookingForm,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (response.ok) {
-        navigate(`/${customerId}/trips`)
+      if (response.status === 200) {
+        navigate(`/${customerId}/trips`);
       }
     } catch (err) {
-      console.log("Submit Booking Failed.", err.message)
+      console.log("Submit Booking Failed.", err.message);
     }
-  }
+  };
 
   return loading ? (
     <Loader />
   ) : (
     <>
       <Navbar />
-      
+
       <div className="listing-details">
         <div className="title">
           <h1>{listing.title}</h1>
@@ -107,7 +104,7 @@ const ListingDetails = () => {
           {listing.listingPhotoPaths?.map((item) => (
             <img
               src={`http://localhost:3001/${item.replace("public", "")}`}
-              alt="listing photo"
+              alt={listing.title}
             />
           ))}
         </div>

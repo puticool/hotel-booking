@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import "../styles/List.scss";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import { useDispatch, useSelector } from "react-redux";
 import { setReservationList } from "../redux/state";
 import ListingCard from "../components/ListingCard";
-import Footer from "../components/Footer"
+import Footer from "../components/Footer";
 
 const ReservationList = () => {
   const [loading, setLoading] = useState(true);
@@ -14,26 +15,21 @@ const ReservationList = () => {
 
   const dispatch = useDispatch();
 
-  const getReservationList = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:3001/users/${userId}/reservations`,
-        {
-          method: "GET",
-        }
-      );
-
-      const data = await response.json();
-      dispatch(setReservationList(data));
-      setLoading(false);
-    } catch (err) {
-      console.log("Fetch Reservation List failed!", err.message);
-    }
-  };
-
   useEffect(() => {
+    const getReservationList = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/users/${userId}/reservations`
+        );
+        dispatch(setReservationList(response.data));
+        setLoading(false);
+      } catch (err) {
+        console.log("Fetch Reservation List failed!", err.message);
+      }
+    };
+
     getReservationList();
-  }, []);
+  }, [userId, dispatch]);
 
   return loading ? (
     <Loader />
@@ -42,8 +38,9 @@ const ReservationList = () => {
       <Navbar />
       <h1 className="title-list">Your Reservation List</h1>
       <div className="list">
-        {reservationList?.map(({ listingId, hostId, startDate, endDate, totalPrice, booking=true }) => (
+        {reservationList?.map(({ listingId, hostId, startDate, endDate, totalPrice, booking = true }) => (
           <ListingCard
+            key={listingId._id}
             listingId={listingId._id}
             creator={hostId._id}
             listingPhotoPaths={listingId.listingPhotoPaths}

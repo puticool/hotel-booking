@@ -1,7 +1,7 @@
 import "../styles/CreateListing.scss";
 import Navbar from "../components/Navbar";
 import { categories, types, facilities } from "../data";
-
+import axios from "axios";
 import { RemoveCircleOutline, AddCircleOutline } from "@mui/icons-material";
 import variables from "../styles/variables.scss";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
@@ -10,7 +10,7 @@ import { useState } from "react";
 import { BiTrash } from "react-icons/bi";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Footer from "../components/Footer"
+import Footer from "../components/Footer";
 
 const CreateListing = () => {
   const [category, setCategory] = useState("");
@@ -101,7 +101,7 @@ const CreateListing = () => {
     e.preventDefault();
 
     try {
-      /* Create a new FormData onject to handle file uploads */
+      /* Create a new FormData object to handle file uploads */
       const listingForm = new FormData();
       listingForm.append("creator", creatorId);
       listingForm.append("category", category);
@@ -128,18 +128,13 @@ const CreateListing = () => {
       });
 
       /* Send a POST request to server */
-      const response = await fetch("http://localhost:3001/properties/create", {
-        method: "POST",
-        body: listingForm,
-      });
-
-      if (response.ok) {
-        navigate("/home");
-      }
+      await axios.post("http://localhost:3001/properties/create", listingForm);
+      navigate("/home");
     } catch (err) {
       console.log("Publish Listing failed", err.message);
     }
   };
+
   return (
     <>
       <Navbar />

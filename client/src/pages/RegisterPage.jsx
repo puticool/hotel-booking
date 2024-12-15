@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../styles/Register.scss";
 import toast from "react-hot-toast";
 
@@ -45,17 +46,13 @@ const RegisterPage = () => {
         register_form.append(key, formData[key]);
       }
 
-      const response = await fetch("http://localhost:3001/auth/register", {
-        method: "POST",
-        body: register_form,
-      });
+      const response = await axios.post("http://localhost:3001/auth/register", register_form);
 
-      if (response.ok) {
+      if (response.status === 200) {
         toast.success("Registration successful!");
         navigate("/login");
       } else {
-        const error = await response.json();
-        toast.error(error.message || "Registration failed. Please try again.");
+        toast.error(response.data.message || "Registration failed. Please try again.");
       }
     } catch (err) {
       toast.error("Registration failed. Please check your inputs and try again.");
@@ -120,14 +117,14 @@ const RegisterPage = () => {
             required
           />
           <label htmlFor="image">
-            <img src="/assets/addImage.png" alt="add profile photo" />
+            <img src="/assets/addImage.png" alt="add profile" />
             <p>Upload Your Photo</p>
           </label>
 
           {formData.profileImage && (
             <img
               src={URL.createObjectURL(formData.profileImage)}
-              alt="profile photo"
+              alt="Profile"
               style={{ maxWidth: "80px" }}
             />
           )}

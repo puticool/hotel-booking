@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import "../styles/ListingCard.scss";
 import {
   ArrowForwardIos,
@@ -49,18 +50,23 @@ const ListingCard = ({
 
   const patchWishList = async () => {
     if (user?._id !== creator._id) {
-    const response = await fetch(
-      `http://localhost:3001/users/${user?._id}/${listingId}`,
-      {
-        method: "PATCH",
-        header: {
-          "Content-Type": "application/json",
-        },
+      try {
+        const response = await axios.patch(
+          `http://localhost:3001/users/${user?._id}/${listingId}`,
+          {},
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        dispatch(setWishList(response.data.wishList));
+      } catch (err) {
+        console.log("Failed to update wish list", err.message);
       }
-    );
-    const data = await response.json();
-    dispatch(setWishList(data.wishList));
-  } else { return }
+    } else {
+      return;
+    }
   };
 
   return (

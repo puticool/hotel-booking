@@ -1,6 +1,26 @@
 @import "./variables.scss";
 @import "./breakpoints.scss";
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
 .navbar {
   padding: 10px 60px;
   display: flex;
@@ -16,6 +36,11 @@
     width: 100px;
     margin-top: 10px;
     cursor: pointer;
+    animation: bounce 2s infinite;
+
+    &:hover {
+      animation: bounce 0.5s ease-out;
+    }
   }
 
   &_search {
@@ -30,10 +55,12 @@
     input {
       border: none;
       outline: none;
+      animation: fadeIn 0.5s ease-out;
     }
 
     &:hover {
       @include shadow;
+      //animation: fadeIn 0.3s ease-in-out;
     }
 
     @include lg {
@@ -52,9 +79,12 @@
       color: $blue;
       font-weight: 700;
       cursor: pointer;
+      //animation: fadeIn 0.5s ease-out;
 
       &:hover {
         color: $pinkred;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: color 0.3s ease-in-out;
       }
 
       @include sm {
@@ -73,9 +103,12 @@
       color: $blue;
       font-weight: 700;
       cursor: pointer;
+      //animation: fadeIn 0.5s ease-out;
 
       &:hover {
         color: $pinkred;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: color 0.3s ease-in-out;
       }
 
       @include sm {
@@ -94,9 +127,11 @@
       gap: 10px;
       background-color: white;
       cursor: pointer;
+      //animation: fadeIn 0.5s ease-out;
 
       &:hover {
         @include shadow;
+        animation: bounce 0.5s ease-out;
       }
 
       img {
@@ -118,6 +153,7 @@
       border-radius: 20px;
       @include shadow;
       z-index: 9999;
+      //animation: fadeIn 0.5s ease-out;
 
       @include sm {
         right: 20px;
@@ -129,10 +165,12 @@
         text-decoration: none;
         color: $blue;
         font-weight: 700;
+        //animation: fadeIn 0.5s ease-out;
 
         &:hover {
           color: $pinkred;
           background-color: rgba(217, 213, 213, 0.2);
+          transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
         }
       }
     }

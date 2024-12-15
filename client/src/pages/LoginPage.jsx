@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import "../styles/Login.scss";
 import { setLogin } from "../redux/state";
 import { useDispatch } from "react-redux";
@@ -16,19 +17,12 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3001/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await axios.post("http://localhost:3001/auth/login", {
+        email,
+        password,
       });
 
-      if (!response.ok) {
-        throw new Error("Invalid credentials");
-      }
-
-      const loggedIn = await response.json();
+      const loggedIn = response.data;
 
       if (loggedIn) {
         dispatch(
@@ -41,7 +35,7 @@ const LoginPage = () => {
         navigate("/home");
       }
     } catch (err) {
-      toast.error(err.message || "Login failed. Please try again.");
+      toast.error(err.response?.data?.message || "Login failed. Please try again.");
       console.log("Login failed", err.message);
     }
   };

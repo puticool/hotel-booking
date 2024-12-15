@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/List.scss";
 import Navbar from "../components/Navbar";
 import { useParams } from "react-router-dom";
@@ -6,35 +7,31 @@ import { useSelector, useDispatch } from "react-redux";
 import { setListings } from "../redux/state";
 import Loader from "../components/Loader";
 import ListingCard from "../components/ListingCard";
-import Footer from "../components/Footer"
+import Footer from "../components/Footer";
 
 const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
-  const { category } = useParams()
+  const { category } = useParams();
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const listings = useSelector((state) => state.listings);
 
-  const getFeedListings = async () => {
-    try {
-      const response = await fetch(
-          `http://localhost:3001/properties?category=${category}`,
-        {
-          method: "GET",
-        }
-      );
-
-      const data = await response.json();
-      dispatch(setListings({ listings: data }));
-      setLoading(false);
-    } catch (err) {
-      console.log("Fetch Listings Failed", err.message);
-    }
-  };
-
   useEffect(() => {
+    const getFeedListings = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/properties?category=${category}`
+        );
+
+        dispatch(setListings({ listings: response.data }));
+        setLoading(false);
+      } catch (err) {
+        console.log("Fetch Listings Failed", err.message);
+      }
+    };
+
     getFeedListings();
-  }, [category]);
+  }, [category, dispatch]);
 
   return loading ? (
     <Loader />
@@ -57,6 +54,7 @@ const CategoryPage = () => {
             booking = false,
           }) => (
             <ListingCard
+              key={_id}
               listingId={_id}
               creator={creator}
               listingPhotoPaths={listingPhotoPaths}
