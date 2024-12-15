@@ -1,0 +1,11 @@
+http://localhost:3001/auth/register                 post
+http://localhost:3001/auth/login                    post
+http://localhost:3001/properties/create             post
+http://localhost:3001/properties/                   get
+http://localhost:3001/properties/search/:search     get
+http://localhost:3001/properties/:listingId         get
+http://localhost:3001/bookings/create              post
+http://localhost:3001/users/:userId/trips           get
+http://localhost:3001/users/:userId/:listingId      patch
+http://localhost:3001/users/:userId/properties      get
+http://localhost:3001/users/:userId/reservations    get
