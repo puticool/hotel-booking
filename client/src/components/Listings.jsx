@@ -11,6 +11,8 @@ const Listings = () => {
   const [loading, setLoading] = useState(true);
 
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1); // Quản lý trang hiện tại
+  const itemsPerPage = 6; // Số mục trên mỗi trang
 
   const listings = useSelector((state) => state.listings);
 
@@ -35,18 +37,45 @@ const Listings = () => {
 
   useEffect(() => {
     getFeedListings();
+    setCurrentPage(1); // Reset về trang đầu tiên khi chọn category mới
   }, [selectedCategory]);
+
+  // Tính toán dữ liệu cho trang hiện tại
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentListings = listings.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Tính số lượng trang
+  const totalPages = Math.ceil(listings.length / itemsPerPage);
+
+  // Xử lý khi chuyển sang trang trước
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Xử lý khi chuyển sang trang kế tiếp
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   return (
     <>
       <div className="category-list">
         {categories?.map((category, index) => (
           <div
-            className={`category ${category.label === selectedCategory ? "selected" : ""}`}
+            className={`category ${
+              category.label === selectedCategory ? "selected" : ""
+            }`}
             key={index}
             onClick={() => setSelectedCategory(category.label)}
           >
-            <div id="category-icon" className="category_icon">{category.icon}</div>
+            <div id="category-icon" className="category_icon">
+              {category.icon}
+            </div>
             <p>{category.label}</p>
           </div>
         ))}
@@ -56,7 +85,7 @@ const Listings = () => {
         <Loader />
       ) : (
         <div className="listings">
-          {listings.map(
+          {currentListings.map(
             ({
               _id,
               creator,
@@ -67,9 +96,10 @@ const Listings = () => {
               category,
               type,
               price,
-              booking=false
+              booking = false,
             }) => (
               <ListingCard
+                key={_id}
                 listingId={_id}
                 creator={creator}
                 listingPhotoPaths={listingPhotoPaths}
@@ -85,6 +115,27 @@ const Listings = () => {
           )}
         </div>
       )}
+
+      {/* Nút điều hướng phân trang */}
+      <div className="pagination">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1} // Vô hiệu hóa nút khi đang ở trang đầu
+        >
+          Previous
+        </button>
+
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages} // Vô hiệu hóa nút khi đang ở trang cuối
+        >
+          Next
+        </button>
+      </div>
     </>
   );
 };
