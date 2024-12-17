@@ -10,12 +10,11 @@ import { setListings } from "../redux/state";
 const Listings = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
-
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1); // Quản lý trang hiện tại
   const itemsPerPage = 6; // Số mục trên mỗi trang
 
-  const listings = useSelector((state) => state.listings);
+  const listings = useSelector((state) => state.listings || []); // Thêm fallback giá trị rỗng
 
   const getFeedListings = async () => {
     try {
@@ -25,10 +24,11 @@ const Listings = () => {
           : "http://localhost:3001/properties"
       );
 
-      dispatch(setListings({ listings: response.data }));
+      dispatch(setListings({ listings: response.data || [] })); // Fallback dữ liệu rỗng
       setLoading(false);
     } catch (err) {
       console.log("Fetch Listings Failed", err.message);
+      setLoading(false); // Đảm bảo Loader sẽ dừng nếu có lỗi
     }
   };
 
@@ -37,26 +37,18 @@ const Listings = () => {
     setCurrentPage(1); // Reset về trang đầu tiên khi chọn category mới
   }, [selectedCategory]);
 
-  // Tính toán dữ liệu cho trang hiện tại
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentListings = listings.slice(indexOfFirstItem, indexOfLastItem);
+  const currentListings = (listings || []).slice(indexOfFirstItem, indexOfLastItem);
 
-  // Tính số lượng trang
-  const totalPages = Math.ceil(listings.length / itemsPerPage);
+  const totalPages = Math.ceil((listings || []).length / itemsPerPage);
 
-  // Xử lý khi chuyển sang trang trước
   const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  // Xử lý khi chuyển sang trang kế tiếp
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   return (
@@ -113,28 +105,18 @@ const Listings = () => {
         </div>
       )}
 
-      {/* Nút điều hướng phân trang */}
       <div className="pagination">
-        <button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1} // Vô hiệu hóa nút khi đang ở trang đầu
-        >
+        <button onClick={handlePreviousPage} disabled={currentPage === 1}>
           Previous
         </button>
-
         <span>
           Page {currentPage} of {totalPages}
         </span>
-
-        <button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages} // Vô hiệu hóa nút khi đang ở trang cuối
-        >
+        <button onClick={handleNextPage} disabled={currentPage === totalPages}>
           Next
         </button>
       </div>
     </>
   );
 };
-
 export default Listings;
